@@ -24,10 +24,10 @@ public class LCS {
         if (memo[i][j] != -1) return memo[i][j];
 
         if (s1.charAt(i - 1) == s2.charAt(j - 1))
-            memo[i][j] = 1 + lcsRec(s1, s2, i - 1, j - 1, memo);
+            memo[i][j] = 1 + lcsMem(s1, s2, i - 1, j - 1, memo);
         else
-            memo[i][j] = Math.max(lcsRec(s1, s2, i - 1, j, memo),
-                                  lcsRec(s1, s2, i, j - 1, memo));
+            memo[i][j] = Math.max(lcsMem(s1, s2, i - 1, j, memo),
+                                  lcsMem(s1, s2, i, j - 1, memo));
         return memo[i][j];
     }
 
@@ -61,5 +61,6 @@ public class LCS {
 
         System.out.println("LCS with memoization: " + lcsMem(s1, s2, s1.length(), s2.length(), memo));
         System.out.println("LCS with DP: " + lcsDP(s1, s2));
+        System.out.println("LCS with recursion: " + lcsRecursion(s1, s2, s1.length(), s2.length()));
     }
 }
