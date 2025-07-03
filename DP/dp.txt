@@ -1,0 +1,727 @@
+// You are climbing a staircase. It takes n steps to reach the top.
+// Each time you can either climb 1 or 2 steps. In how many distinct ways can you climb to the top?
+
+import java.util.Scanner;
+
+public class ClimbingStairs {
+
+    // Recursive approach
+    static int usingRecursion(int n) {
+        if (n <= 1) return 1;
+        return usingRecursion(n - 1) + usingRecursion(n - 2);
+    }
+
+    // Memoization (top-down DP)
+    static int dpmemoization(int n, int[] d) {
+        if (n <= 1) return 1;
+        if (d[n] != 0) return d[n];
+        d[n] = dpmemoization(n - 1, d) + dpmemoization(n - 2, d);
+        return d[n];
+    }
+
+    // Tabulation (bottom-up DP)
+    static int dpTabulation(int n) {
+        if (n <= 1) return 1;
+
+        int[] dp = new int[n + 1];
+        dp[0] = 1;
+        dp[1] = 1;
+
+        for (int i = 2; i <= n; i++)
+            dp[i] = dp[i - 1] + dp[i - 2];
+
+        return dp[n];
+    }
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.print("Enter number of stairs (1 to 45): ");
+        int n = scanner.nextInt();
+
+        if (n < 1 || n > 45) {
+            System.out.println("Invalid input. Please enter a value between 1 and 45.");
+            return;
+        }
+
+        System.out.println("Using recursion: " + usingRecursion(n));
+
+        int[] memo = new int[n + 1];
+        System.out.println("Using memoization: " + dpmemoization(n, memo));
+
+        System.out.println("Using tabulation: " + dpTabulation(n));
+    }
+}
+
+// Coin Exchange Min
+
+
+// Coin Change Minimum Number of Coins Problem
+// Given a set of coin denominations and an amount, find the minimum number of coins needed to make that amount.
+public class CoinChangeMin {
+
+    static int minCoinsRecursive(int[] coins, int amount, int n) {
+        if (amount == 0) {
+            return 0; // no coins needed for 0 amount
+        }
+        if (n == 0) {
+            return Integer.MAX_VALUE - 1; // can't make change with 0 coins
+        }
+
+        if (coins[n - 1] <= amount) {
+            int include = 1 + minCoinsRecursive(coins, amount - coins[n - 1], n); // reuse coin
+            int exclude = minCoinsRecursive(coins, amount, n - 1);
+
+            if(include == Integer.MAX_VALUE - 1 && exclude == Integer.MAX_VALUE - 1) {
+                return -1; // not possible to make change
+            }
+            return Math.min(include, exclude);
+        } else {
+            int exclude = minCoinsRecursive(coins, amount, n - 1);
+            if(exclude == Integer.MAX_VALUE - 1) {
+                return -1; // not possible to make change
+            }
+            return exclude; // can't include this coin, so just return the result of excluding it
+        }
+    }
+
+    static int minCoinsMemo(int[] coins, int amount, int n, int[][] dp) {
+        
+        if(amount == 0) {
+            return 0; // no coins needed for 0 amount
+        }
+
+        if (n == 0) {
+            return Integer.MAX_VALUE - 1; // can't make change with 0 coins
+        }
+
+        if (dp[n][amount] != -1) {
+            return dp[n][amount]; // return already computed value
+        }
+
+        if (coins[n - 1] <= amount) {
+            int include = 1 + minCoinsMemo(coins, amount - coins[n - 1], n, dp);
+            int exclude = minCoinsMemo(coins, amount, n - 1, dp);
+            dp[n][amount] = Math.min(include, exclude);
+        } else {
+            dp[n][amount] = minCoinsMemo(coins, amount, n - 1, dp);
+        }
+
+        if(dp[n][amount] == Integer.MAX_VALUE - 1) {
+            return -1; // not possible to make change
+        } else {
+            return dp[n][amount]; // return the minimum number of coins needed
+        }
+    }
+
+     
+    public static void main(String[] args) {
+        int[] coins = {4,6,7};
+       // int amount = 3;
+        int amount = 11; // Example amount to make change for
+        int n = coins.length;
+
+         
+        int res = minCoinsRecursive(coins, amount, n);
+        if (res == - 1) {
+            System.out.println("Min Coins Recursive: Not possible to make change");
+        } else {
+            System.out.println("Min Coins Recursive: " + res);
+        }
+
+        int[][] dp = new int[n + 1][amount + 1];
+        for (int i = 0; i <= n; i++) {
+            for (int j = 0; j <= amount; j++) {
+                dp[i][j] = -1; // Initialize dp array with -1 for memoization
+            }
+        }
+        res = minCoinsMemo(coins, amount, n, dp);
+        if (res == -1) {
+            System.out.println("Min Coins Memoization: Not possible to make change");
+        } else {
+            System.out.println("Min Coins Memoization: " + res);
+        }
+ 
+    }
+}
+
+// Number Factor
+
+
+// Given a number n, count the number of ways to express n as the sum of 1, 3, and 4.
+
+import java.util.*;
+public class NumberFactor {
+
+    static int countWaysRecursion(int n) {
+
+        // Base case: If n is 0, there is one way to express it (using no numbers)
+        if (n == 0) {
+            return 1;
+        }
+        // If n is negative, there are no ways to express it
+        if (n < 0) {
+            return 0;
+        }
+
+        // Recursive calls for using 1, 3, and 4
+        return countWaysRecursion(n - 1) + countWaysRecursion(n - 3) + countWaysRecursion(n - 4);
+
+    }
+
+    static int countWaysMemoization(int n, int[] dp) {
+        // Base case: If n is 0, there is one way to express it (using no numbers)
+        if (n == 0) {
+            return 1;
+        }
+        // If n is negative, there are no ways to express it
+        if (n < 0) {
+            return 0;
+        }
+
+        // Check if the value is already computed
+        if (dp[n] != -1) {
+            return dp[n];
+        }
+
+        // Recursive calls for using 1, 3, and 4
+        dp[n] = countWaysMemoization(n - 1, dp) + countWaysMemoization(n - 3, dp) + countWaysMemoization(n - 4, dp);
+
+        return dp[n];
+    }
+
+    static int countWaysTabulation(int n) {
+        // Create an array to store the number of ways to express each number
+        int[] dp = new int[n + 1];
+
+        // Base case: There is one way to express 0 (using no numbers)
+        dp[0] = 1;
+        // Fill the dp array using tabulation
+        for (int i = 1; i <= n; i++) {
+            // If we can use 1
+            if (i - 1 >= 0) {
+                dp[i] += dp[i - 1];
+            }
+            // If we can use 3
+            if (i - 3 >= 0) {
+                dp[i] += dp[i - 3];
+            }
+            // If we can use 4
+            if (i - 4 >= 0) {
+                dp[i] += dp[i - 4];
+            }
+        }
+
+        return dp[n];
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int n = sc.nextInt(); // Example input
+        // Using Recursion
+
+        System.out.println("Number of ways to express " + n + " using recursion: " + countWaysRecursion(n));
+
+        // Using Memoization
+        int[] dp = new int[n + 1];
+        for (int i = 0; i <= n; i++) {
+            dp[i] = -1; // Initialize the dp array with -1
+        }
+
+        System.out.println("Number of ways to express " + n + " using memoization: " + countWaysMemoization(n, dp));
+
+        // Using Tabulation
+        System.out.println("Number of ways to express " + n + " using tabulation: " + countWaysTabulation(n));
+
+    }
+}
+
+// Rock Climbing Min Energy
+
+import java.util.Scanner;
+
+public class RockClimbingMin {
+
+    // Recursive with memoization (min version)
+    public static int climbRecMin(int[][] wall, int row, int col, int[][] memo) {
+        if (row < 0 || col < 0 || col >= wall[0].length)
+            return Integer.MAX_VALUE; // Invalid move
+        if (row == 0) return wall[0][col]; // Base case: top row
+        if (memo[row][col] != -1) return memo[row][col];
+
+        int minPrev = Math.min(
+            climbRecMin(wall, row - 1, col, memo),
+            Math.min(
+                climbRecMin(wall, row - 1, col - 1, memo),
+                climbRecMin(wall, row - 1, col + 1, memo)
+            )
+        );
+
+        memo[row][col] = wall[row][col] + (minPrev == Integer.MAX_VALUE ? 0 : minPrev);
+        return memo[row][col];
+    }
+
+    // DP bottom-up (min version)
+    public static int climbDPMin(int[][] wall) {
+        int rows = wall.length, cols = wall[0].length;
+        int[][] dp = new int[rows][cols];
+
+        // Initialize top row
+        for (int j = 0; j < cols; j++)
+            dp[0][j] = wall[0][j];
+
+        // Fill from top to bottom
+        for (int i = 1; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                int minPrev = dp[i - 1][j];
+                if (j > 0) minPrev = Math.min(minPrev, dp[i - 1][j - 1]);
+                if (j < cols - 1) minPrev = Math.min(minPrev, dp[i - 1][j + 1]);
+                dp[i][j] = wall[i][j] + minPrev;
+            }
+        }
+
+        int minEnergy = Integer.MAX_VALUE;
+        for (int j = 0; j < cols; j++)
+            minEnergy = Math.min(minEnergy, dp[rows - 1][j]);
+
+        return minEnergy;
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        // Input
+        System.out.print("Enter number of rows: ");
+        int rows = sc.nextInt();
+        System.out.print("Enter number of columns: ");
+        int cols = sc.nextInt();
+
+        int[][] wall = new int[rows][cols];
+        System.out.println("Enter the energy values of the wall:");
+        for (int i = 0; i < rows; i++)
+            for (int j = 0; j < cols; j++)
+                wall[i][j] = sc.nextInt();
+
+        // Memo table initialization
+        int[][] memo = new int[rows][cols];
+        for (int i = 0; i < rows; i++)
+            for (int j = 0; j < cols; j++)
+                memo[i][j] = -1;
+
+        // Recursive solution
+        int minEnergyRec = Integer.MAX_VALUE;
+        for (int j = 0; j < cols; j++)
+            minEnergyRec = Math.min(minEnergyRec, climbRecMin(wall, rows - 1, j, memo));
+
+        // DP solution
+        int minEnergyDP = climbDPMin(wall);
+
+        // Output
+        System.out.println("rockClimbingRec (min): " + minEnergyRec);
+        System.out.println("rockClimbingDP (min): " + minEnergyDP);
+    }
+}
+
+// Rod Cutting
+
+// Rod Cutting Problem: Given a rod of length n and an array of prices where prices[i] is the price of a rod of length i+1,
+//  find the maximum obtainable value by cutting the rod into pieces.
+// This is a classic dynamic programming problem that can be solved using a bottom-up approach.
+
+import java.util.Scanner;
+
+public class RodCutting {
+
+    static int cutRod(int[] prices, int rodLength) {
+        int n = prices.length;
+        int[][] dp = new int[n + 1][rodLength + 1];
+        
+        // Build the dp table in bottom-up manner
+        for (int i = 1; i <= n; i++) {
+            for (int j = 1; j <= rodLength; j++) {
+                if (i <= j) {
+                    // Include the piece or exclude it
+                    dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - i] + prices[i - 1]);
+                } else {
+                    // Exclude the piece
+                    dp[i][j] = dp[i - 1][j];
+                }
+            }
+        }
+        return dp[n][rodLength];
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("Enter rod length: ");
+        int rodLength = sc.nextInt();
+
+        System.out.println("Enter prices for rod lengths 1 to " + rodLength + ":");
+        int[] prices = new int[rodLength];
+        for (int i = 0; i < rodLength; i++) {
+            prices[i] = sc.nextInt();
+        }
+
+        int maxValue = cutRod(prices, rodLength);
+        System.out.println("Maximum obtainable value is " + maxValue);
+    }
+}
+
+
+// Fibonacci
+
+import java.util.*;
+
+public class Fibonacci{
+//1, 1, 2, 3, 5, 8, 13, 21, 34, (55)
+    //Top-Down Memoization
+    public static int fibMemo(int n, HashMap<Integer, Integer> memo) {
+        if (n <= 1) return n;
+        if (memo.containsKey(n)) return memo.get(n);
+        int result = fibMemo(n - 1, memo) + fibMemo(n - 2, memo);
+        memo.put(n, result);
+        return result;
+    }
+
+    //Bottom-Up Tabulation
+    public static int fibTab(int n) {
+        if (n <= 1) return n;
+        int[] dp = new int[n + 1];
+        dp[0] = 0; dp[1] = 1;
+        for (int i = 2; i <= n; i++)
+            dp[i] = dp[i - 1] + dp[i - 2];
+        return dp[n];
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Give input 'n' : ");
+        int n = sc.nextInt();
+        System.out.println("fibMemo: " + fibMemo(n, new HashMap<>()));
+        System.out.println("fibTab: " + fibTab(n));
+    }
+}
+
+// Fibonacci 2
+
+import java.util.*;
+
+public class Fibonacci1 {
+
+    public static int fibMemo(int n, HashMap<Integer, Integer> memo) {
+        if (n <= 1) return n;
+        if (memo.containsKey(n)) return memo.get(n);
+
+        int result = fibMemo(n - 1, memo) + fibMemo(n - 2, memo);
+        memo.put(n, result);
+        return result;
+    }
+
+    public static int fibTab(int n) {
+        if (n <= 1) return n;
+
+        int[] dp = new int[n + 1];
+        dp[0] = 0;
+        dp[1] = 1;
+
+        for (int i = 2; i <= n; i++)
+            dp[i] = dp[i - 1] + dp[i - 2];
+
+        return dp[n];
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Give input 'n' : ");
+        int n = sc.nextInt();
+        System.out.println("fibMemo: " + fibMemo(n, new HashMap<>()));
+        System.out.println("fibTab: " + fibTab(n));
+    }
+}
+
+//  0-1 Knapsack
+
+import java.util.*;
+
+public class Knapsack {
+
+    // Recursive with memoization
+    public static int knapsackRec(int[] weights, int[] values, int n, int capacity, int[][] dp) {
+        if (n == 0 || capacity == 0) return 0;
+        if (dp[n][capacity] != -1) return dp[n][capacity];
+
+        if (weights[n - 1] <= capacity) {
+            int include = values[n - 1] + knapsackRec(weights, values, n - 1, capacity - weights[n - 1], dp);
+            int exclude = knapsackRec(weights, values, n - 1, capacity, dp);
+            dp[n][capacity] = Math.max(include, exclude);
+        } else {
+            dp[n][capacity] = knapsackRec(weights, values, n - 1, capacity, dp);
+        }
+        return dp[n][capacity];
+    }
+
+    // DP tabulation
+    public static int knapsackDP(int[] weights, int[] values, int capacity) {
+        int n = weights.length;
+        int[][] dp = new int[n + 1][capacity + 1];
+
+        for (int i = 1; i <= n; i++) {
+            for (int w = 0; w <= capacity; w++) {
+                if (weights[i - 1] <= w)
+                    dp[i][w] = Math.max(dp[i - 1][w],
+                            dp[i - 1][w - weights[i - 1]] + values[i - 1]);
+                else
+                    dp[i][w] = dp[i - 1][w];
+            }
+        }
+        return dp[n][capacity];
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Number of items: ");
+        int items = sc.nextInt();
+
+        int[] weights = new int[items];
+        int[] values = new int [items];
+        for(int i=0; i<items; i++){
+            System.out.print("Weight of item " + (i+1) + ": ");
+            weights[i] = sc.nextInt();
+            System.out.print("Value of value " + (i+1) + ": ");
+            values[i] = sc.nextInt();
+        }
+
+        System.out.print("Capacity : ");
+        int capacity = sc.nextInt();
+        int[][] dp = new int[weights.length + 1][capacity + 1];
+        for (int i = 0; i < dp.length; i++)
+            for (int j = 0; j < dp[0].length; j++)
+                dp[i][j] = -1;
+
+        // Result from Memoization
+        //System.out.println(knapsackRec(weights, values, weights.length, capacity, dp));
+        // Result from DP
+        System.out.println(knapsackDP(weights, values, capacity));
+    }
+}
+
+
+
+// LCS
+
+import java.util.*;
+
+public class LCS {
+
+    // with recursion
+    static int lcsRecursion(String str1, String str2, int i, int j) {
+        if (i == 0 || j == 0) {
+            return 0; // Base case: one string is empty
+        }
+        if (str1.charAt(i - 1) == str2.charAt(j - 1)) {
+
+            int includeChar = 1 + lcsRecursion(str1, str2, i - 1, j - 1); // Include character from both strings
+            return includeChar; // Return the length of LCS including this character
+        } else {
+            int excludeStr1 = lcsRecursion(str1, str2, i - 1, j); // Exclude character from str1
+            int excludeStr2 = lcsRecursion(str1, str2, i, j - 1); // Exclude character from str2
+            return Math.max(excludeStr1, excludeStr2); // Take the maximum of excluding either character
+        }
+    }
+    
+    // with memoization
+    public static int lcsMem(String s1, String s2, int i, int j, int[][] memo) {
+        if (i == 0 || j == 0) return 0;
+        if (memo[i][j] != -1) return memo[i][j];
+
+        if (s1.charAt(i - 1) == s2.charAt(j - 1))
+            memo[i][j] = 1 + lcsMem(s1, s2, i - 1, j - 1, memo);
+        else
+            memo[i][j] = Math.max(lcsMem(s1, s2, i - 1, j, memo),
+                                  lcsMem(s1, s2, i, j - 1, memo));
+        return memo[i][j];
+    }
+
+    // DP Tabulation
+    public static int lcsDP(String s1, String s2) {
+        int m = s1.length(), n = s2.length();
+        int[][] dp = new int[m + 1][n + 1];
+
+        for (int i = 1; i <= m; i++) {
+            for (int j = 1; j <= n; j++) {
+                if (s1.charAt(i - 1) == s2.charAt(j - 1))
+                    dp[i][j] = 1 + dp[i - 1][j - 1];
+                else
+                    dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
+            }
+        }
+        return dp[m][n];
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Input String 1: ");
+        String s1 = sc.nextLine();
+        System.out.print("Input String 2: ");
+        String s2 = sc.nextLine();
+
+        int[][] memo = new int[s1.length() + 1][s2.length() + 1];
+        for (int i = 0; i <= s1.length(); i++)
+            for (int j = 0; j <= s2.length(); j++)
+                memo[i][j] = -1;
+
+        System.out.println("LCS with memoization: " + lcsMem(s1, s2, s1.length(), s2.length(), memo));
+        System.out.println("LCS with DP: " + lcsDP(s1, s2));
+        System.out.println("LCS with recursion: " + lcsRecursion(s1, s2, s1.length(), s2.length()));
+    }
+}
+
+// LCSPrint
+
+import java.util.*;
+public class LCSprint {
+    static int lcsMemoization(String str1, String str2, int i, int j, int[][] dp) {
+        if (i == 0 || j == 0) {
+            return 0;
+        }
+        if (dp[i][j] != -1) {
+            return dp[i][j];
+        }
+        if (str1.charAt(i - 1) == str2.charAt(j - 1)) {
+            dp[i][j] = 1 + lcsMemoization(str1, str2, i - 1, j - 1, dp);
+        } else {
+            int excludeStr1 = lcsMemoization(str1, str2, i - 1, j, dp);
+            int excludeStr2 = lcsMemoization(str1, str2, i, j - 1, dp);
+            dp[i][j] = Math.max(excludeStr1, excludeStr2);
+        }
+        return dp[i][j];
+    }
+
+    static String buildLCS(String str1, String str2, int[][] dp) {
+        int i = str1.length();
+        int j = str2.length();
+        StringBuilder lcs = new StringBuilder();
+
+        while (i > 0 && j > 0) {
+            if (str1.charAt(i - 1) == str2.charAt(j - 1)) {
+                lcs.append(str1.charAt(i - 1));
+                i--;
+                j--;
+            } else if (dp[i - 1][j] > dp[i][j - 1]) {
+                i--;
+            } else {
+                j--;
+            }
+        }
+        return lcs.reverse().toString();
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Input String 1: ");
+        String str1 = sc.nextLine();
+        System.out.print("Input String 2: ");
+        String str2 = sc.nextLine();
+       
+
+        int i = str1.length();
+        int j = str2.length();
+
+        int[][] dp = new int[i + 1][j + 1];
+        for (int x = 0; x <= i; x++) {
+            for (int y = 0; y <= j; y++) {
+                dp[x][y] = -1;
+            }
+        }
+
+        int lcsLength = lcsMemoization(str1, str2, i, j, dp);
+        System.out.println("Length of LCS: " + lcsLength);
+
+        String lcsStr = buildLCS(str1, str2, dp);
+        System.out.println("LCS: " + lcsStr);
+    }
+}
+
+// Rock Climbing Max energy
+
+import java.util.Scanner;
+
+public class RockClimbing {
+
+    // Recursive with memoization
+    public static int climbRec(int[][] wall, int row, int col, int[][] memo) {
+        if (row < 0 || col < 0 || col >= wall[0].length)
+            return 0;
+        if (memo[row][col] != -1) return memo[row][col];
+
+        int maxPrev = Math.max(
+            climbRec(wall, row - 1, col, memo),
+            Math.max(
+                climbRec(wall, row - 1, col - 1, memo),
+                climbRec(wall, row - 1, col + 1, memo)
+            )
+        );
+        memo[row][col] = wall[row][col] + maxPrev;
+        return memo[row][col];
+    }
+
+    // DP bottom-up
+    public static int climbDP(int[][] wall) {
+        int rows = wall.length, cols = wall[0].length;
+        int[][] dp = new int[rows][cols];
+
+        // Initialize top row
+        for (int j = 0; j < cols; j++)
+            dp[0][j] = wall[0][j];
+
+        // Fill from top to bottom
+        for (int i = 1; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                int maxPrev = dp[i - 1][j];
+                if (j > 0) maxPrev = Math.max(maxPrev, dp[i - 1][j - 1]);
+                if (j < cols - 1) maxPrev = Math.max(maxPrev, dp[i - 1][j + 1]);
+                dp[i][j] = wall[i][j] + maxPrev;
+            }
+        }
+
+        int maxEnergy = 0;
+        for (int j = 0; j < cols; j++)
+            maxEnergy = Math.max(maxEnergy, dp[rows - 1][j]);
+
+        return maxEnergy;
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("Enter number of rows: ");
+        int rows = sc.nextInt();
+
+        System.out.print("Enter number of columns: ");
+        int cols = sc.nextInt();
+
+        int[][] wall = new int[rows][cols];
+        System.out.println("Enter the energy values of the wall:");
+        for (int i = 0; i < rows; i++)
+            for (int j = 0; j < cols; j++)
+                wall[i][j] = sc.nextInt();
+
+        // Initialize memoization array
+        int[][] memo = new int[rows][cols];
+        for (int i = 0; i < rows; i++)
+            for (int j = 0; j < cols; j++)
+                memo[i][j] = -1;
+
+        // Calculate using recursive approach
+        int maxEnergyRec = 0;
+        for (int j = 0; j < cols; j++)
+            maxEnergyRec = Math.max(maxEnergyRec, climbRec(wall, rows - 1, j, memo));
+
+        // Calculate using DP
+        int maxEnergyDP = climbDP(wall);
+
+        System.out.println("rockClimbingRec: " + maxEnergyRec);
+        System.out.println("rockClimbingDP: " + maxEnergyDP);
+    }
+}
