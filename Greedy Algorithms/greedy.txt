@@ -1,0 +1,286 @@
+// Activity Selection
+
+import java.util.*;
+
+public class ActivitySelection {
+    static class Activity {
+        int start, end;
+
+        Activity(int s, int e) {
+            start = s;
+            end = e;
+        }
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter number of activities: ");
+        int n = sc.nextInt();
+        Activity[] activities = new Activity[n];
+        for (int i = 0; i < n; i++) {
+            System.out.print("Start and end time of activity " + (i + 1) + ": ");
+            activities[i] = new Activity(sc.nextInt(), sc.nextInt());
+        }
+
+        Arrays.sort(activities, Comparator.comparingInt(a -> a.end));
+
+        List<Activity> selected = new ArrayList<>();
+        selected.add(activities[0]);
+        int lastEnd = activities[0].end;
+
+        for (int i = 1; i < n; i++) {
+            if (activities[i].start >= lastEnd) {
+                selected.add(activities[i]);
+                lastEnd = activities[i].end;
+            }
+        }
+
+        System.out.println("Selected activities:");
+        for (Activity a : selected)
+            System.out.println("(" + a.start + ", " + a.end + ")");
+    }
+}
+
+// Coin Exchange
+
+import java.util.*;
+
+public class CoinExchange {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter coin denominations (space-separated): ");
+        String[] input = sc.nextLine().split(" ");
+        int[] coins = Arrays.stream(input).mapToInt(Integer::parseInt).toArray();
+        Arrays.sort(coins);
+        System.out.print("Enter amount: ");
+        int amount = sc.nextInt();
+
+        List<Integer> result = new ArrayList<>();
+        for (int i = coins.length - 1; i >= 0 && amount > 0; i--) {
+            while (amount >= coins[i]) {
+                amount -= coins[i];
+                result.add(coins[i]);
+            }
+        }
+
+        if (amount > 0)
+            System.out.println("Cannot make exact change.");
+        else
+            System.out.println("Coins used: " + result);
+    }
+}
+
+// Fractional Knapsack
+
+import java.util.*;
+
+public class FractionalKnapsack {
+    static class Item {
+        int weight, value;
+        double ratio;
+
+        Item(int v, int w) {
+            value = v;
+            weight = w;
+            ratio = (double) v / w;
+        }
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter number of items: ");
+        int n = sc.nextInt();
+        Item[] items = new Item[n];
+
+        for (int i = 0; i < n; i++) {
+            System.out.print("Enter value and weight of item " + (i + 1) + ": ");
+            items[i] = new Item(sc.nextInt(), sc.nextInt());
+        }
+
+        System.out.print("Enter knapsack capacity: ");
+        int capacity = sc.nextInt();
+
+        Arrays.sort(items, (a, b) -> Double.compare(b.ratio, a.ratio));
+
+        double totalValue = 0;
+        for (Item item : items) {
+            if (capacity == 0) break;
+            if (item.weight <= capacity) {
+                totalValue += item.value;
+                capacity -= item.weight;
+            } else {
+                totalValue += item.ratio * capacity;
+                capacity = 0;
+            }
+        }
+
+        System.out.println("Maximum value in knapsack = " + totalValue);
+    }
+}
+
+// Job Sequencing
+
+import java.util.*;
+
+public class JobSequencing {
+    static class Job {
+        char id;
+        int deadline, profit;
+
+        Job(char id, int d, int p) {
+            this.id = id;
+            deadline = d;
+            profit = p;
+        }
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter number of jobs: ");
+        int n = sc.nextInt();
+        Job[] jobs = new Job[n];
+
+        for (int i = 0; i < n; i++) {
+            System.out.print("Enter Job ID, deadline, and profit: ");
+            jobs[i] = new Job(sc.next().charAt(0), sc.nextInt(), sc.nextInt());
+        }
+
+        Arrays.sort(jobs, (a, b) -> b.profit - a.profit);
+
+        int maxDeadline = Arrays.stream(jobs).mapToInt(j -> j.deadline).max().orElse(0);
+        char[] result = new char[maxDeadline];
+        boolean[] slot = new boolean[maxDeadline];
+
+        for (Job job : jobs) {
+            for (int j = Math.min(maxDeadline - 1, job.deadline - 1); j >= 0; j--) {
+                if (!slot[j]) {
+                    slot[j] = true;
+                    result[j] = job.id;
+                    break;
+                }
+            }
+        }
+
+        System.out.print("Scheduled jobs: ");
+        for (int i = 0; i < maxDeadline; i++)
+            if (slot[i]) System.out.print(result[i] + " ");
+        System.out.println();
+    }
+}
+
+// Max Length Chain
+import java.util.*;
+
+public class MaxLengthChain {
+    static class Pair {
+        int a, b;
+
+        Pair(int a, int b) {
+            this.a = a;
+            this.b = b;
+        }
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter number of pairs: ");
+        int n = sc.nextInt();
+        Pair[] pairs = new Pair[n];
+
+        for (int i = 0; i < n; i++) {
+            System.out.print("Enter pair " + (i + 1) + ": ");
+            pairs[i] = new Pair(sc.nextInt(), sc.nextInt());
+        }
+
+        Arrays.sort(pairs, Comparator.comparingInt(p -> p.b));
+        int count = 1, last = pairs[0].b;
+
+        for (int i = 1; i < n; i++) {
+            if (pairs[i].a > last) {
+                count++;
+                last = pairs[i].b;
+            }
+        }
+
+        System.out.println("Maximum length of chain = " + count);
+    }
+}
+
+// Min Abs Difference Pair
+
+import java.util.*;
+
+public class MinAbsDifferencePairs {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter first array: ");
+        int[] A = Arrays.stream(sc.nextLine().split(" ")).mapToInt(Integer::parseInt).toArray();
+        System.out.print("Enter second array: ");
+        int[] B = Arrays.stream(sc.nextLine().split(" ")).mapToInt(Integer::parseInt).toArray();
+
+        Arrays.sort(A);
+        Arrays.sort(B);
+
+        int sum = 0;
+        for (int i = 0; i < A.length; i++)
+            sum += Math.abs(A[i] - B[i]);
+
+        System.out.println("Minimum sum of absolute differences = " + sum);
+    }
+}
+
+// Network Routing
+
+import java.util.*;
+
+public class NetworkRouting {
+    static class Edge {
+        int target, weight;
+
+        Edge(int t, int w) {
+            target = t;
+            weight = w;
+        }
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter number of nodes and edges: ");
+        int n = sc.nextInt(), m = sc.nextInt();
+        List<List<Edge>> graph = new ArrayList<>();
+        for (int i = 0; i < n; i++) graph.add(new ArrayList<>());
+
+        System.out.println("Enter edges (u v w):");
+        for (int i = 0; i < m; i++) {
+            int u = sc.nextInt(), v = sc.nextInt(), w = sc.nextInt();
+            graph.get(u).add(new Edge(v, w));
+            graph.get(v).add(new Edge(u, w));  // if undirected
+        }
+
+        System.out.print("Enter source node: ");
+        int source = sc.nextInt();
+        int[] dist = new int[n];
+        Arrays.fill(dist, Integer.MAX_VALUE);
+        dist[source] = 0;
+
+        PriorityQueue<int[]> pq = new PriorityQueue<>(Comparator.comparingInt(a -> a[1]));
+        pq.offer(new int[]{source, 0});
+
+        while (!pq.isEmpty()) {
+            int[] curr = pq.poll();
+            int u = curr[0], d = curr[1];
+            if (d > dist[u]) continue;
+
+            for (Edge e : graph.get(u)) {
+                if (dist[u] + e.weight < dist[e.target]) {
+                    dist[e.target] = dist[u] + e.weight;
+                    pq.offer(new int[]{e.target, dist[e.target]});
+                }
+            }
+        }
+
+        System.out.println("Shortest distances from source:");
+        for (int i = 0; i < n; i++)
+            System.out.println("To node " + i + ": " + dist[i]);
+    }
+}
